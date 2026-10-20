@@ -505,44 +505,71 @@
             return text.toString().toLowerCase().replace(/\s+/g, '-').replace(/[^\w\-]+/g, '');
         }
 
-        function getOrgIcon(orgName) {
+      function getOrgIcon(orgName) {
             const lower = orgName.toLowerCase();
-            // School icon ONLY for Public Schools & Community Schools
-            if (lower.includes('public school') || lower.includes('community school')) {
+            if (lower.includes('school') || lower.includes('district') || lower.includes('academy') || lower.includes('isd') || lower.includes('resa')) {
                 return 'fas fa-school'; 
             }
             if (lower.includes('conference') || lower.includes('summit') || lower.includes('symposium') || lower.includes('convention') || lower.includes('macul')) {
                 return 'fas fa-clipboard-list'; 
             }
-            // ISDs, Businesses, and others default to the building icon
             return 'fas fa-building'; 
         }
 
-        function renderNestedAccordion(data, mvData) {
+        // NEW: Determine icon based on the resource type
+        function getResourceIcon(type) {
+            if (!type) return 'fas fa-tag'; // Default icon
+            const lowerType = type.toLowerCase();
+            
+            if (lowerType.includes('slide') || lowerType.includes('canva')) return 'fas fa-desktop';
+            if (lowerType.includes('gemini') || lowerType.includes('notebook')) return 'fas fa-microchip';
+            if (lowerType.includes('form') || lowerType.includes('survey')) return 'fas fa-pen-nib';
+            if (lowerType.includes('doc') || lowerType.includes('pdf')) return 'far fa-file-lines';
+            if (lowerType.includes('web') || lowerType.includes('site')) return 'fas fa-globe';
+            if (lowerType.includes('tool') || lowerType.includes('agent') || lowerType.includes('resource')) return 'fas fa-toolbox';
+            
+            return 'fas fa-tag'; // Fallback for anything else
+        }
+
+        function renderNestedAccordion(data) {
             loadingIndicator.classList.add('hidden');
             accordionContainer.innerHTML = '';
             
+            const orgs = Object.keys(data);
+            if (orgs.length === 0) return;
+
+            // Updated Brand Colors: Dark Teal, Light Teal, A11y Green
+            const orgThemes = [
+                { bg: 'bg-mv-darkteal', hover: 'hover:brightness-90', border: 'border-mv-darkteal' },
+                { bg: 'bg-mv-lightteal', hover: 'hover:brightness-90', border: 'border-mv-lightteal' },
+                { bg: 'bg-mv-a11ygreen', hover: 'hover:brightness-90', border: 'border-mv-a11ygreen' }
+            ];
+
             let htmlString = '';
-            
-            // ==========================================
-            // SPECIAL PERSISTENT TOP BLOCK: MV Resources
-            // ==========================================
-            if (mvData) {
-                const orgId = `org-mv-resources`;
-                const theme = { bg: 'bg-mv-a11yorange', hover: 'hover:brightness-90', border: 'border-mv-a11yorange' };
-                const wrapperOrgClass = ''; // Start closed
+
+            // LEVEL 1: Organizations
+            orgs.forEach((org, orgIndex) => {
+                const orgId = `org-${slugify(org)}-${orgIndex}`;
+                const theme = orgThemes[orgIndex % orgThemes.length];
+                const dates = Object.keys(data[org]);
+                const orgIcon = getOrgIcon(org);
                 
+                // Keep all Orgs closed by default
+                const isOrgOpen = false;
+                const ariaOrgExpanded = isOrgOpen ? 'true' : 'false';
+                const wrapperOrgClass = isOrgOpen ? 'open' : '';
+
                 htmlString += `
-                    <div class="rounded-xl overflow-hidden shadow-sm border ${theme.border} bg-white mb-4">
+                    <div class="rounded-xl overflow-hidden shadow-sm border ${theme.border} bg-white">
                         <h3>
                             <button class="accordion-btn w-full flex justify-between items-center ${theme.bg} ${theme.hover} text-white px-6 py-5 text-left focus:outline-none focus:ring-4 focus:ring-inset focus:ring-white/50 transition-colors" 
-                                    aria-expanded="false" 
+                                    aria-expanded="${ariaOrgExpanded}" 
                                     aria-controls="content-${orgId}">
                                 <span class="font-extrabold text-xl md:text-2xl flex items-center gap-3">
                                     <span class="inline-flex justify-center items-center w-8 shrink-0">
-                                        <i class="fas fa-bookmark text-white/80" aria-hidden="true"></i>
+                                        <i class="${orgIcon} text-white/80" aria-hidden="true"></i>
                                     </span> 
-                                    Michigan Virtual Resources
+                                    ${org}
                                 </span>
                                 <span class="flex items-center justify-center w-8 h-8 rounded-full bg-white/10 shrink-0">
                                     <i class="fas fa-chevron-down accordion-icon" aria-hidden="true"></i>
@@ -552,50 +579,123 @@
                         
                         <div id="content-${orgId}" class="accordion-wrapper ${wrapperOrgClass} bg-gray-50/50">
                             <div class="accordion-inner">
+                                <!-- Padding moved inside for smooth grid animation -->
                                 <div class="p-4 md:p-6 flex flex-col gap-4">
                 `;
-                
-                // Directly loop through Sessions (Skipping Dates)
-                const sessionNames = Object.keys(mvData);
-                sessionNames.forEach((sessionName, sessionIndex) => {
-                    const resources = mvData[sessionName];
-                    if (resources.length === 0) return;
+
+                // LEVEL 2: Dates within Organization
+                dates.forEach((date, dateIndex) => {
+                    const dateId = `date-${slugify(date)}-${dateIndex}`;
+                    const sessions = data[org][date];
                     
-                    const sessionId = `session-mv-${slugify(sessionName)}-${sessionIndex}`;
-                    const sessionCount = resources.length;
+                    let totalResources = 0;
+                    Object.values(sessions).forEach(resArr => totalResources += resArr.length);
                     
+                    const isDateOpen = false;
+                    const ariaDateExpanded = isDateOpen ? 'true' : 'false';
+                    const wrapperDateClass = isDateOpen ? 'open' : '';
+
                     htmlString += `
-                        <div class="session-block rounded-lg overflow-hidden border border-gray-200 bg-white shadow-sm ring-1 ring-black/5">
-                            <h5>
-                                <button class="accordion-btn w-full flex justify-between items-center bg-gray-50 hover:bg-gray-100 text-mv-deepteal px-4 py-3 text-left border-l-4 border-l-mv-a11yorange focus:outline-none focus:ring-2 focus:ring-inset focus:ring-mv-a11yorange transition-colors"
-                                        aria-expanded="false" 
-                                        aria-controls="content-${sessionId}">
-                                    <span class="font-semibold text-md flex items-center gap-2">
-                                        <i class="fas fa-users text-mv-a11yorange" aria-hidden="true"></i>
-                                        ${sessionName}
+                        <div class="rounded-lg overflow-hidden border border-gray-200 bg-white shadow-sm ring-1 ring-black/5">
+                            <h4>
+                                <button class="accordion-btn w-full flex justify-between items-center bg-white hover:bg-gray-50 text-mv-blackteal px-5 py-4 text-left border-l-4 border-l-mv-darkteal focus:outline-none focus:ring-2 focus:ring-inset focus:ring-mv-a11yorange transition-colors" 
+                                        aria-expanded="${ariaDateExpanded}" 
+                                        aria-controls="content-${dateId}">
+                                    <span class="font-bold text-lg flex items-center gap-3">
+                                        <div class="bg-mv-altbg text-mv-darkteal p-1.5 rounded">
+                                            <i class="far fa-calendar-alt" aria-hidden="true"></i>
+                                        </div>
+                                        ${date}
                                     </span>
-                                    <span class="text-mv-lightgray text-sm">
-                                        ${sessionCount} resource(s) <i class="fas fa-chevron-down accordion-icon ml-1" aria-hidden="true"></i>
+                                    <span class="text-mv-lightgray">
+                                        <i class="fas fa-chevron-down accordion-icon" aria-hidden="true"></i>
                                     </span>
                                 </button>
-                            </h5>
-                            <div id="content-${sessionId}" class="accordion-wrapper">
-                                <div class="accordion-inner bg-white">
-                                    <div class="p-3 grid grid-cols-1 md:grid-cols-2 gap-3">
+                            </h4>
+                            
+                            <div id="content-${dateId}" class="accordion-wrapper ${wrapperDateClass}">
+                                <div class="accordion-inner bg-mv-altbg/30">
+                                    <div class="p-4 md:p-5 flex flex-col gap-4">
                     `;
-                    
-                    resources.forEach((resource) => {
-                        htmlString += `
-                            <a href="${resource.linkUrl}" target="_blank" rel="noopener noreferrer" class="resource-card block p-3 rounded border border-gray-100 hover:bg-gray-50 flex items-start gap-3">
-                                <div class="text-mv-a11yorange mt-1"><i class="fas fa-link"></i></div>
-                                <div>
-                                    <div class="font-medium text-mv-blackteal">${resource.resourceText}</div>
-                                    <div class="text-xs text-mv-lightgray mt-1">${resource.resourceType || 'Resource'}</div>
+
+                    // LEVEL 3: Sessions and Resources (Now Nested as Accordions)
+                    const sessionNames = Object.keys(sessions);
+                    if (sessionNames.length > 0 && totalResources > 0) {
+                        sessionNames.forEach((sessionName, sessionIndex) => {
+                            const resources = sessions[sessionName];
+                            if (resources.length === 0) return;
+                            
+                            const sessionId = `session-${slugify(sessionName)}-${dateId}-${sessionIndex}`;
+                            const sessionCount = resources.length;
+
+                            htmlString += `
+                                <div class="session-block rounded-lg overflow-hidden border border-gray-200 bg-white shadow-sm">
+                                    <h5>
+                                        <button class="accordion-btn w-full flex justify-between items-center bg-gray-50 hover:bg-gray-100 text-mv-deepteal px-4 py-3 text-left border-l-4 border-l-mv-a11yorange focus:outline-none focus:ring-2 focus:ring-inset focus:ring-mv-a11yorange transition-colors" 
+                                                aria-expanded="false" 
+                                                aria-controls="content-${sessionId}">
+                                            <span class="font-bold text-md flex items-center gap-2">
+                                                <i class="fas fa-chalkboard text-mv-a11yorange opacity-80" aria-hidden="true"></i> ${sessionName}
+                                                <span class="ml-2 text-[10px] font-bold bg-white text-mv-darkgray px-2 py-0.5 rounded-full border border-gray-200 shadow-sm">${sessionCount} item${sessionCount !== 1 ? 's' : ''}</span>
+                                            </span>
+                                            <span class="text-mv-lightgray">
+                                                <i class="fas fa-chevron-down accordion-icon" aria-hidden="true"></i>
+                                            </span>
+                                        </button>
+                                    </h5>
+                                    
+                                    <div id="content-${sessionId}" class="accordion-wrapper">
+                                        <div class="accordion-inner">
+                                            <div class="p-3 md:p-4 grid grid-cols-1 gap-3 bg-white">
+                            `;
+
+                            resources.forEach(item => {
+                                // Automatically determine the correct icon based on the text
+                                const resIcon = getResourceIcon(item.resourceType);
+                                
+                                const resourceTypeBadge = item.resourceType 
+                                    ? `<div class="mb-1.5">
+                                         <span class="inline-flex items-center gap-1.5 px-2.5 py-1 bg-mv-altbg text-mv-darkteal text-[10px] font-bold rounded-md uppercase tracking-wider border border-mv-brightteal/50 shadow-sm">
+                                            <i class="${resIcon} opacity-70"></i> ${item.resourceType}
+                                         </span>
+                                       </div>` 
+                                    : '';
+
+                                htmlString += `
+                                    <div class="resource-card bg-white rounded-lg p-4 border border-gray-200 shadow-sm flex flex-col md:flex-row gap-4 justify-between md:items-center group hover:border-mv-lightteal transition-all">
+                                        <div class="flex-grow flex flex-col justify-center">
+                                            ${resourceTypeBadge}
+                                            <p class="text-mv-darkgray text-sm leading-relaxed font-medium ${item.resourceType ? 'mt-0.5' : ''}">${item.resourceText || 'Untitled Resource'}</p>
+                                        </div>
+                                        <div class="shrink-0 mt-2 md:mt-0 flex items-center h-full">
+                                            ${item.linkUrl ? `
+                                            <a href="${item.linkUrl}" target="_blank" rel="noopener noreferrer" 
+                                               class="inline-flex items-center justify-center gap-2 bg-mv-darkteal hover:bg-mv-deepteal text-white w-full md:w-auto px-4 py-2 rounded-lg font-bold text-sm transition-all focus:ring-4 focus:ring-mv-a11yorange/50 shadow shadow-mv-darkteal/20"
+                                               aria-label="Open resource link">
+                                                <i class="fas fa-external-link-alt" aria-hidden="true"></i> View
+                                            </a>
+                                            ` : '<span class="inline-flex items-center gap-1 px-3 py-1.5 bg-gray-100 text-mv-lightgray text-xs font-semibold rounded-md border border-gray-200"><i class="fas fa-clock"></i> Pending</span>'}
+                                        </div>
+                                    </div>
+                                `;
+                            });
+
+                            htmlString += `
+                                            </div>
+                                        </div>
+                                    </div>
                                 </div>
-                            </a>
+                            `;
+                        });
+                    } else {
+                        htmlString += `
+                            <div class="py-6 text-center text-mv-lightgray bg-white rounded-lg border border-dashed border-gray-300">
+                                <i class="fas fa-folder-open text-3xl mb-2 opacity-40"></i>
+                                <p class="text-sm font-medium">No resources have been added for this date yet.</p>
+                            </div>
                         `;
-                    });
-                    
+                    }
+
                     htmlString += `
                                     </div>
                                 </div>
@@ -603,14 +703,18 @@
                         </div>
                     `;
                 });
-                
+
                 htmlString += `
                                 </div>
                             </div>
                         </div>
                     </div>
                 `;
-            }
+            });
+
+            accordionContainer.innerHTML = htmlString;
+            attachAccordionListeners();
+        }
 
             // ==========================================
             // STANDARD BLOCK: All other Organizations
