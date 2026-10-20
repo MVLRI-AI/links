@@ -413,7 +413,15 @@
                 }
             });
 
+            // Sort logic: "Michigan Virtual" always at the top, then by most recent date descending
             const sortedOrgs = Object.keys(structuredData).sort((a, b) => {
+                const aIsMV = a.toLowerCase().includes('michigan virtual');
+                const bIsMV = b.toLowerCase().includes('michigan virtual');
+                
+                if (aIsMV && !bIsMV) return -1;
+                if (!aIsMV && bIsMV) return 1;
+                
+                // If neither or both are Michigan Virtual, sort by date
                 return orgMaxDates[b] - orgMaxDates[a];
             });
 
@@ -495,7 +503,7 @@
             const orgs = Object.keys(data);
             if (orgs.length === 0) return;
 
-            // Updated Brand Colors: Dark Teal, Light Teal, A11y Green
+            // Standard Brand Colors: Dark Teal, Light Teal, A11y Green
             const orgThemes = [
                 { bg: 'bg-mv-darkteal', hover: 'hover:brightness-90', border: 'border-mv-darkteal' },
                 { bg: 'bg-mv-lightteal', hover: 'hover:brightness-90', border: 'border-mv-lightteal' },
@@ -503,11 +511,21 @@
             ];
 
             let htmlString = '';
+            let themeIndex = 0; // Maintain an index solely for cycling regular themes
 
             // LEVEL 1: Organizations
             orgs.forEach((org, orgIndex) => {
                 const orgId = `org-${slugify(org)}-${orgIndex}`;
-                const theme = orgThemes[orgIndex % orgThemes.length];
+                
+                // CONDITIONAL OVERRIDE: Check if the organization is Michigan Virtual
+                let theme;
+                if (org.toLowerCase().includes('michigan virtual')) {
+                    theme = { bg: 'bg-mv-a11yorange', hover: 'hover:brightness-90', border: 'border-mv-a11yorange' };
+                } else {
+                    theme = orgThemes[themeIndex % orgThemes.length];
+                    themeIndex++; // Only increment the normal color cycle for non-MV organizations
+                }
+                
                 const dates = Object.keys(data[org]);
                 const orgIcon = getOrgIcon(org);
                 
@@ -603,7 +621,8 @@
                                     
                                     <div id="content-${sessionId}" class="accordion-wrapper">
                                         <div class="accordion-inner">
-                                            <div class="p-3 md:p-4 grid grid-cols-1 gap-3 bg-white">
+                                            <!-- GRID IMPLEMENTATION HERE: Two columns on medium screens and larger -->
+                                            <div class="p-3 md:p-4 grid grid-cols-1 md:grid-cols-2 gap-4 bg-white">
                             `;
 
                             resources.forEach(item => {
@@ -618,16 +637,17 @@
                                        </div>` 
                                     : '';
 
+                                // ADDED h-full to resource-card so grid items stretch equally
                                 htmlString += `
-                                    <div class="resource-card bg-white rounded-lg p-4 border border-gray-200 shadow-sm flex flex-col md:flex-row gap-4 justify-between md:items-center group hover:border-mv-lightteal transition-all">
+                                    <div class="resource-card h-full bg-white rounded-lg p-4 border border-gray-200 shadow-sm flex flex-col xl:flex-row gap-4 justify-between xl:items-center group hover:border-mv-lightteal transition-all">
                                         <div class="flex-grow flex flex-col justify-center">
                                             ${resourceTypeBadge}
                                             <p class="text-mv-darkgray text-sm leading-relaxed font-medium ${item.resourceType ? 'mt-0.5' : ''}">${item.resourceText || 'Untitled Resource'}</p>
                                         </div>
-                                        <div class="shrink-0 mt-2 md:mt-0 flex items-center h-full">
+                                        <div class="shrink-0 mt-2 xl:mt-0 flex items-center h-full">
                                             ${item.linkUrl ? `
                                             <a href="${item.linkUrl}" target="_blank" rel="noopener noreferrer" 
-                                               class="inline-flex items-center justify-center gap-2 bg-mv-darkteal hover:bg-mv-deepteal text-white w-full md:w-auto px-4 py-2 rounded-lg font-bold text-sm transition-all focus:ring-4 focus:ring-mv-a11yorange/50 shadow shadow-mv-darkteal/20"
+                                               class="inline-flex items-center justify-center gap-2 bg-mv-darkteal hover:bg-mv-deepteal text-white w-full xl:w-auto px-4 py-2 rounded-lg font-bold text-sm transition-all focus:ring-4 focus:ring-mv-a11yorange/50 shadow shadow-mv-darkteal/20"
                                                aria-label="Open resource link">
                                                 <i class="fas fa-external-link-alt" aria-hidden="true"></i> View
                                             </a>
@@ -705,7 +725,7 @@
                         ]
                     }
                 },
-                "Lansing School District": {
+                "Michigan Virtual": {
                     "November 2, 2026": {
                         "Teacher In-Service": [
                             { resourceText: "Google Drive folder containing all interactive activities.", linkUrl: "https://michiganvirtual.org", resourceType: "Website" },
