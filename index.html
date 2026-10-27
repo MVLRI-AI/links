@@ -1,4 +1,3 @@
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -242,7 +241,7 @@
             <div id="error-container" class="hidden text-center py-16 px-4 bg-red-50 rounded-xl border border-red-200" role="alert">
                 <i class="fas fa-exclamation-triangle text-5xl text-mv-a11yorange mb-4 drop-shadow-sm" aria-hidden="true"></i>
                 <h4 class="text-2xl font-bold text-mv-blackteal mb-3">Unable to load data</h4>
-                <p class="text-mv-darkgray max-w-lg mx-auto mb-6">Please ensure your Google Sheet has "Anyone with the link can view" enabled, and that the headers (<strong class="text-mv-deepteal">Organization, Date, Session, Resource Text, Link URL, Resource Type</strong>) are correctly ordered in Row 1.</p>
+                <p class="text-mv-darkgray max-w-lg mx-auto mb-6">Please ensure your Google Sheet has "Anyone with the link can view" enabled, and that the headers are correctly ordered in Row 1.</p>
                 <div class="inline-block bg-white p-4 rounded-lg shadow-sm border border-gray-200 text-sm text-left">
                     <p class="font-bold mb-2 border-b pb-2"><i class="fas fa-info-circle text-mv-lightteal"></i> Current view is displaying demonstration data.</p>
                 </div>
@@ -368,6 +367,7 @@
             
             const structuredData = {};
             const orgMaxDates = {}; 
+            const orgLogos = {}; // NEW: Store logos mapped to org names
             
             rows.forEach(row => {
                 if (row.length < 2) return; 
@@ -378,8 +378,14 @@
                 const resourceText = (row[3] || '').trim();
                 const linkUrl = (row[4] || '').trim();
                 const resourceType = (row[5] || '').trim(); 
+                const logoUrl = (row[6] || '').trim(); // NEW: Column G (7th column)
                 
                 if (!org || !dateStr) return; 
+                
+                // NEW: Capture logo if present
+                if (logoUrl && !orgLogos[org]) {
+                    orgLogos[org] = logoUrl;
+                }
                 
                 let dateObj = new Date(dateStr);
                 if (isNaN(dateObj.getTime())) {
@@ -437,7 +443,8 @@
                 });
             });
 
-            return finalData;
+            // Returning both the processed data and the captured logos
+            return { data: finalData, logos: orgLogos };
         }
 
         async function fetchEngagements() {
@@ -453,10 +460,10 @@
                 const rows = parseCSV(csvText);
                 if (rows.length <= 1) throw new Error('No data found in sheet.');
 
-                const data = processData(rows);
-                if (Object.keys(data).length === 0) throw new Error('Empty parsed object.');
+                const processedData = processData(rows);
+                if (Object.keys(processedData.data).length === 0) throw new Error('Empty parsed object.');
 
-                renderNestedAccordion(data);
+                renderNestedAccordion(processedData.data, processedData.logos);
                 
             } catch (error) {
                 console.error("Error:", error);
@@ -496,7 +503,7 @@
             return 'fas fa-tag'; // Fallback for anything else
         }
 
-        function renderNestedAccordion(data) {
+        function renderNestedAccordion(data, logos = {}) {
             loadingIndicator.classList.add('hidden');
             accordionContainer.innerHTML = '';
             
@@ -528,6 +535,12 @@
                 
                 const dates = Object.keys(data[org]);
                 const orgIcon = getOrgIcon(org);
+                const orgLogoUrl = logos[org];
+                
+                // NEW: Dynamic Icon or Logo HTML with a fallback mechanism
+                const orgIconHTML = orgLogoUrl 
+                    ? `<img src="${orgLogoUrl}" alt="${org} logo" class="h-8 w-8 object-contain drop-shadow-sm filter brightness-0 invert" onerror="this.outerHTML='<i class=\\'${orgIcon} text-white/80\\' aria-hidden=\\'true\\'></i>'">`
+                    : `<i class="${orgIcon} text-white/80" aria-hidden="true"></i>`;
                 
                 // Keep all Orgs closed by default
                 const isOrgOpen = false;
@@ -542,7 +555,7 @@
                                     aria-controls="content-${orgId}">
                                 <span class="font-extrabold text-xl md:text-2xl flex items-center gap-3">
                                     <span class="inline-flex justify-center items-center w-8 shrink-0">
-                                        <i class="${orgIcon} text-white/80" aria-hidden="true"></i>
+                                        ${orgIconHTML}
                                     </span> 
                                     ${org}
                                 </span>
@@ -734,7 +747,13 @@
                     }
                 }
             };
-            renderNestedAccordion(mockData);
+            
+            // Mock logo data so you can see it in action
+            const mockLogos = {
+                "Michigan Virtual": "https://michiganvirtual.org/legacy-wordpress/uploads/2019/09/michigan-virtual-logo-horizontal-stacked-transparent.png"
+            };
+            
+            renderNestedAccordion(mockData, mockLogos);
         }
 
         function openModal() {
@@ -792,5 +811,3 @@
     </script>
 </body>
 </html>
-
-```
