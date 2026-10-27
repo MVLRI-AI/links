@@ -537,9 +537,9 @@
                 const orgIcon = getOrgIcon(org);
                 const orgLogoUrl = logos[org];
                 
-                // NEW: Dynamic Icon or Logo HTML with a fallback mechanism
+                // NEW: Dynamic Icon or Logo HTML with a fallback mechanism (Removed brightness-0 invert filters)
                 const orgIconHTML = orgLogoUrl 
-                    ? `<img src="${orgLogoUrl}" alt="${org} logo" class="h-8 w-8 object-contain drop-shadow-sm filter brightness-0 invert" onerror="this.outerHTML='<i class=\\'${orgIcon} text-white/80\\' aria-hidden=\\'true\\'></i>'">`
+                    ? `<img src="${orgLogoUrl}" alt="${org} logo" class="h-8 w-8 object-contain drop-shadow-sm" onerror="this.outerHTML='<i class=\\'${orgIcon} text-white/80\\' aria-hidden=\\'true\\'></i>'">`
                     : `<i class="${orgIcon} text-white/80" aria-hidden="true"></i>`;
                 
                 // Keep all Orgs closed by default
