@@ -5,6 +5,9 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Links and Resources | Mike Maksimchuk</title>
     
+    <!-- Favicon -->
+    <link rel="icon" type="image/png" href="https://michiganvirtual.org/legacy-wordpress/uploads/2019/09/michigan-virtual-logo-horizontal-stacked-transparent.png">
+    
     <!-- Tailwind CSS for rapid styling -->
     <script src="https://cdn.tailwindcss.com"></script>
     
@@ -68,7 +71,7 @@
                 radial-gradient(circle at 80% 20%, #a84c2a 0%, transparent 50%),
                 radial-gradient(circle at 20% 90%, #f7941e 0%, transparent 60%);
             background-size: 150% 150%;
-            animation: undulate 18s ease-in-out infinite alternate;
+            animation: undulate 30s ease-in-out infinite alternate;
         }
 
         @keyframes undulate {
@@ -238,7 +241,7 @@
         <div class="container mx-auto px-4 text-center flex flex-col items-center justify-center gap-8">
             <img src="https://michiganvirtual.org/legacy-wordpress/uploads/2019/09/michigan-virtual-logo-horizontal-stacked-transparent.png" 
                  alt="Michigan Virtual" 
-                 class="h-10 w-auto opacity-40 grayscale object-contain transition-opacity hover:opacity-80"
+                 class="h-10 w-auto grayscale object-contain"
                  onerror="this.style.display='none'">
             
             <!-- Admin Access Button -->
@@ -251,21 +254,8 @@
                 </span>
             </button>
             
-            <div class="max-w-4xl mx-auto text-xs text-gray-400 font-medium space-y-4 leading-relaxed mt-4">
-                <p class="text-sm">&copy; <span id="year"></span> Mike Maksimchuk / Michigan Virtual. All rights reserved.</p>
-                
-                <p class="flex flex-col md:flex-row items-center justify-center gap-2">
-                    <span class="flex gap-1 text-lg text-gray-300" aria-label="Creative Commons License">
-                        <i class="fab fa-creative-commons"></i>
-                        <i class="fab fa-creative-commons-by"></i>
-                        <i class="fab fa-creative-commons-nc"></i>
-                    </span>
-                    <span>Unless otherwise noted, content is licensed under a <a href="https://creativecommons.org/licenses/by-nc/4.0/" target="_blank" rel="noopener noreferrer" class="underline hover:text-white transition-colors focus:outline-none focus:ring-2 focus:ring-mv-a11yorange">Creative Commons Attribution-NonCommercial 4.0 License</a>. You may share and adapt materials for non-commercial use with proper attribution.</span>
-                </p>
-                
-                <p class="text-gray-500 max-w-2xl mx-auto border-t border-gray-700/50 pt-4 mt-4">
-                    <strong>Disclaimer:</strong> This repository contains links to external websites and resources. We have no control over and assume no responsibility for the content, privacy policies, or practices of any third-party sites or services.
-                </p>
+            <div class="max-w-4xl mx-auto text-xs text-gray-400 font-medium leading-relaxed mt-4">
+                <p>&copy; <span id="year"></span> Dr. Mike Maksimchuk / Michigan Virtual. All rights reserved. Unless otherwise noted, content is licensed under a <a href="https://creativecommons.org/licenses/by-nc/4.0/" target="_blank" rel="noopener noreferrer" class="underline hover:text-white transition-colors focus:outline-none focus:ring-2 focus:ring-mv-a11yorange">Creative Commons Attribution-NonCommercial 4.0 License</a>. You may share and adapt materials for non-commercial use with proper attribution. <strong>Disclaimer:</strong> This repository contains links to external websites and resources; we assume no responsibility for the content, privacy policies, or practices of any third-party sites.</p>
             </div>
         </div>
     </footer>
@@ -408,8 +398,14 @@
                 }
             });
 
-            // Sort Organizations by most recent date descending
+            // Sort Organizations by most recent date descending (pinning Michigan Virtual to the top)
             const sortedOrgs = Object.keys(structuredData).sort((a, b) => {
+                const aIsMV = a.toLowerCase().includes('michigan virtual');
+                const bIsMV = b.toLowerCase().includes('michigan virtual');
+                
+                if (aIsMV && !bIsMV) return -1;
+                if (!aIsMV && bIsMV) return 1;
+                
                 return orgMaxDates[b] - orgMaxDates[a];
             });
 
@@ -479,11 +475,11 @@
             const orgs = Object.keys(data);
             if (orgs.length === 0) return;
 
-            // Updated Brand colors for Level 1 alternating: A11y Green, Dark Teal, A11y Orange
+            // Updated Brand colors for Level 1 alternating: Green, Dark Teal, Light Teal
             const orgThemes = [
                 { bg: 'bg-mv-a11ygreen', hover: 'hover:brightness-90', border: 'border-mv-a11ygreen' },
                 { bg: 'bg-mv-darkteal', hover: 'hover:brightness-90', border: 'border-mv-darkteal' },
-                { bg: 'bg-mv-a11yorange', hover: 'hover:brightness-90', border: 'border-mv-a11yorange' }
+                { bg: 'bg-mv-lightteal', hover: 'hover:brightness-90', border: 'border-mv-lightteal' }
             ];
 
             let htmlString = '';
