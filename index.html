@@ -5,15 +5,6 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Links and Resources | Mike Maksimchuk</title>
     
-    <!-- Standard Favicon for desktop browsers -->
-    <link rel="icon" href="https://s2.googleusercontent.com/s2/favicons?domain=michiganvirtual.org&sz=256" type="image/png">
-    <!-- Apple Touch Icon for iOS/Android home screen saves -->
-    <link rel="apple-touch-icon" href="https://s2.googleusercontent.com/s2/favicons?domain=michiganvirtual.org&sz=256">
-    <!-- Mobile Web App configuration for a native app feel -->
-    <meta name="apple-mobile-web-app-capable" content="yes">
-    <meta name="apple-mobile-web-app-status-bar-style" content="black">
-    <meta name="mobile-web-app-capable" content="yes">
-    
     <!-- Tailwind CSS for rapid styling -->
     <script src="https://cdn.tailwindcss.com"></script>
     
@@ -71,23 +62,19 @@
         .bg-organic-waves {
             background: #091d20; /* Deep fallback */
             background-image: 
-                radial-gradient(ellipse at 10% 20%, #115e6e 0%, transparent 55%),
-                radial-gradient(circle at 80% 70%, #6a7f17 0%, transparent 60%),
-                radial-gradient(ellipse at 40% 10%, #2f8d98 0%, transparent 50%),
-                radial-gradient(circle at 90% 30%, #a84c2a 0%, transparent 45%),
-                radial-gradient(ellipse at 30% 90%, #f7941e 0%, transparent 65%);
-            background-size: 200% 200%; /* Larger scale for more dramatic overlapping */
-            /* Sped up to 10 seconds */
-            animation: undulate 10s ease-in-out infinite alternate;
+                radial-gradient(circle at 10% 20%, #115e6e 0%, transparent 60%),
+                radial-gradient(circle at 90% 80%, #6a7f17 0%, transparent 60%),
+                radial-gradient(circle at 50% 10%, #2f8d98 0%, transparent 50%),
+                radial-gradient(circle at 80% 20%, #a84c2a 0%, transparent 50%),
+                radial-gradient(circle at 20% 90%, #f7941e 0%, transparent 60%);
+            background-size: 150% 150%;
+            animation: undulate 18s ease-in-out infinite alternate;
         }
 
-        /* More complex, meandering movement path */
         @keyframes undulate {
             0% { background-position: 0% 0%; }
-            25% { background-position: 100% 20%; }
-            50% { background-position: 80% 100%; }
-            75% { background-position: 20% 80%; }
-            100% { background-position: 50% 10%; }
+            50% { background-position: 100% 50%; }
+            100% { background-position: 50% 100%; }
         }
         
         /* Modern Grid-based Accordion Animation for perfect nesting */
@@ -166,25 +153,22 @@
                 <a href="https://michiganvirtual.org" target="_blank" rel="noopener noreferrer" aria-label="Michigan Virtual Homepage" class="inline-block rounded w-max">
                     <img src="https://michiganvirtual.org/legacy-wordpress/uploads/2019/09/michigan-virtual-logo-horizontal-stacked-transparent.png" 
                          alt="Michigan Virtual Logo" 
-                         class="h-16 md:h-20 lg:h-24 w-auto object-contain" 
-                         style="filter: brightness(0) invert(1) drop-shadow(0 2px 10px rgba(0,0,0,0.7));"
+                         class="h-16 md:h-20 lg:h-24 w-auto object-contain brightness-0 invert drop-shadow-md" 
                          onerror="this.onerror=null; this.src='https://placehold.co/250x70/091d20/FFFFFF?text=Michigan+Virtual';">
                 </a>
                 
                 <div>
                     <h1 class="text-3xl md:text-4xl lg:text-5xl font-extrabold text-white tracking-tight mb-1" style="text-shadow: 0 2px 10px rgba(0,0,0,0.7);">Links and Resources</h1>
-                    <h2 class="text-xl md:text-2xl text-white font-semibold flex flex-wrap items-center gap-2" style="text-shadow: 0 2px 8px rgba(0,0,0,0.7);">
-                        Mike Maksimchuk, Ed.D.
-                    </h2>
-                    <p class="text-white font-bold italic text-lg mt-0.5 tracking-wide text-mv-brightteal" style="text-shadow: 0 2px 8px rgba(0,0,0,0.8);">AI Strategist</p>
                 </div>
             </div>
 
             <!-- Contact Information (Frosted Glass Card) -->
-            <address class="not-italic w-full md:w-auto bg-black/80 backdrop-blur-md border border-white/10 rounded-xl p-4 flex flex-col gap-1 md:min-w-[240px]" style="box-shadow: 0 2px 10px rgba(0,0,0,0.7);">
-                <div class="flex items-center gap-2 border-b border-white/20 pb-1.5 mb-1.5">
-                    <i class="fas fa-address-card text-mv-a11yorange text-base"></i>
-                    <p class="font-bold text-white text-base leading-none">Contact</p>
+            <address class="not-italic w-full md:w-auto bg-black/80 backdrop-blur-md border border-white/10 rounded-xl p-4 shadow-xl flex flex-col gap-1 md:min-w-[240px]">
+                <div class="border-b border-white/20 pb-2 mb-2">
+                    <h2 class="text-lg md:text-xl text-white font-semibold flex flex-wrap items-center gap-2 leading-tight">
+                        Mike Maksimchuk, Ed.D.
+                    </h2>
+                    <p class="text-white font-bold italic text-sm mt-0.5 tracking-wide text-mv-brightteal">AI Strategist</p>
                 </div>
                 
                 <div class="flex flex-col gap-1">
@@ -241,7 +225,7 @@
             <div id="error-container" class="hidden text-center py-16 px-4 bg-red-50 rounded-xl border border-red-200" role="alert">
                 <i class="fas fa-exclamation-triangle text-5xl text-mv-a11yorange mb-4 drop-shadow-sm" aria-hidden="true"></i>
                 <h4 class="text-2xl font-bold text-mv-blackteal mb-3">Unable to load data</h4>
-                <p class="text-mv-darkgray max-w-lg mx-auto mb-6">Please ensure your Google Sheet has "Anyone with the link can view" enabled, and that the headers are correctly ordered in Row 1.</p>
+                <p class="text-mv-darkgray max-w-lg mx-auto mb-6">Please ensure your Google Sheet has "Anyone with the link can view" enabled, and that the headers (<strong class="text-mv-deepteal">Organization, Date, Session, Resource Text, Link URL, Resource Type</strong>) are correctly ordered in Row 1.</p>
                 <div class="inline-block bg-white p-4 rounded-lg shadow-sm border border-gray-200 text-sm text-left">
                     <p class="font-bold mb-2 border-b pb-2"><i class="fas fa-info-circle text-mv-lightteal"></i> Current view is displaying demonstration data.</p>
                 </div>
@@ -268,10 +252,19 @@
             </button>
             
             <div class="max-w-4xl mx-auto text-xs text-gray-400 font-medium space-y-4 leading-relaxed mt-4">
-                <p class="text-sm">
-                    &copy; <span id="year"></span> Mike Maksimchuk / Michigan Virtual. All rights reserved. 
-                    | <span class="inline-flex items-center gap-1 text-base text-gray-300 mx-1" aria-label="Creative Commons License"><i class="fab fa-creative-commons"></i><i class="fab fa-creative-commons-by"></i><i class="fab fa-creative-commons-nc"></i></span> Content is licensed under a <a href="https://creativecommons.org/licenses/by-nc/4.0/" target="_blank" rel="noopener noreferrer" class="underline hover:text-white transition-colors focus:outline-none focus:ring-2 focus:ring-mv-a11yorange">CC BY-NC 4.0 License</a>. 
-                    | <strong>Disclaimer:</strong> This repository contains links to external resources; we assume no responsibility for third-party content or privacy practices.
+                <p class="text-sm">&copy; <span id="year"></span> Mike Maksimchuk / Michigan Virtual. All rights reserved.</p>
+                
+                <p class="flex flex-col md:flex-row items-center justify-center gap-2">
+                    <span class="flex gap-1 text-lg text-gray-300" aria-label="Creative Commons License">
+                        <i class="fab fa-creative-commons"></i>
+                        <i class="fab fa-creative-commons-by"></i>
+                        <i class="fab fa-creative-commons-nc"></i>
+                    </span>
+                    <span>Unless otherwise noted, content is licensed under a <a href="https://creativecommons.org/licenses/by-nc/4.0/" target="_blank" rel="noopener noreferrer" class="underline hover:text-white transition-colors focus:outline-none focus:ring-2 focus:ring-mv-a11yorange">Creative Commons Attribution-NonCommercial 4.0 License</a>. You may share and adapt materials for non-commercial use with proper attribution.</span>
+                </p>
+                
+                <p class="text-gray-500 max-w-2xl mx-auto border-t border-gray-700/50 pt-4 mt-4">
+                    <strong>Disclaimer:</strong> This repository contains links to external websites and resources. We have no control over and assume no responsibility for the content, privacy policies, or practices of any third-party sites or services.
                 </p>
             </div>
         </div>
@@ -362,36 +355,32 @@
         }
 
         // Process data into: Organization -> Date -> Session -> Array of Resources
+        // and sort Organizations by most recent date.
         function processData(rows) {
             const headerRow = rows.shift(); 
             
             const structuredData = {};
-            const orgMaxDates = {}; 
-            const orgLogos = {}; // NEW: Store logos mapped to org names
+            const orgMaxDates = {}; // Track most recent date per organization
             
             rows.forEach(row => {
-                if (row.length < 2) return; 
+                if (row.length < 2) return; // Need at least Org and Date
                 
                 const org = (row[0] || '').trim();
                 const dateStr = (row[1] || '').trim();
                 const session = (row[2] || '').trim() || 'General Session';
                 const resourceText = (row[3] || '').trim();
                 const linkUrl = (row[4] || '').trim();
-                const resourceType = (row[5] || '').trim(); 
-                const logoUrl = (row[6] || '').trim(); // NEW: Column G (7th column)
+                const resourceType = (row[5] || '').trim(); // Column F added here
                 
                 if (!org || !dateStr) return; 
                 
-                // NEW: Capture logo if present
-                if (logoUrl && !orgLogos[org]) {
-                    orgLogos[org] = logoUrl;
-                }
-                
+                // Parse date for sorting
                 let dateObj = new Date(dateStr);
                 if (isNaN(dateObj.getTime())) {
-                    dateObj = new Date(0); 
+                    dateObj = new Date(0); // Fallback for unparseable dates
                 }
 
+                // Track highest date for the Organization
                 if (!structuredData[org]) {
                     structuredData[org] = {};
                     orgMaxDates[org] = dateObj;
@@ -419,21 +408,16 @@
                 }
             });
 
-            // Sort logic: "Michigan Virtual" always at the top, then by most recent date descending
+            // Sort Organizations by most recent date descending
             const sortedOrgs = Object.keys(structuredData).sort((a, b) => {
-                const aIsMV = a.toLowerCase().includes('michigan virtual');
-                const bIsMV = b.toLowerCase().includes('michigan virtual');
-                
-                if (aIsMV && !bIsMV) return -1;
-                if (!aIsMV && bIsMV) return 1;
-                
-                // If neither or both are Michigan Virtual, sort by date
                 return orgMaxDates[b] - orgMaxDates[a];
             });
 
+            // Create a new ordered object
             const finalData = {};
             sortedOrgs.forEach(org => {
                 finalData[org] = {};
+                // Sort dates within this org
                 const sortedDates = Object.keys(structuredData[org]).sort((a, b) => {
                     return structuredData[org][b].dateObj - structuredData[org][a].dateObj;
                 });
@@ -443,8 +427,7 @@
                 });
             });
 
-            // Returning both the processed data and the captured logos
-            return { data: finalData, logos: orgLogos };
+            return finalData;
         }
 
         async function fetchEngagements() {
@@ -460,16 +443,16 @@
                 const rows = parseCSV(csvText);
                 if (rows.length <= 1) throw new Error('No data found in sheet.');
 
-                const processedData = processData(rows);
-                if (Object.keys(processedData.data).length === 0) throw new Error('Empty parsed object.');
+                const data = processData(rows);
+                if (Object.keys(data).length === 0) throw new Error('Empty parsed object.');
 
-                renderNestedAccordion(processedData.data, processedData.logos);
+                renderNestedAccordion(data);
                 
             } catch (error) {
                 console.error("Error:", error);
                 loadingIndicator.classList.add('hidden');
                 errorContainer.classList.remove('hidden');
-                renderMockData(); 
+                renderMockData(); // Fallback
             }
         }
 
@@ -477,87 +460,55 @@
             return text.toString().toLowerCase().replace(/\s+/g, '-').replace(/[^\w\-]+/g, '');
         }
 
+        // Determine icon based on organization name keywords
         function getOrgIcon(orgName) {
             const lower = orgName.toLowerCase();
             if (lower.includes('school') || lower.includes('district') || lower.includes('academy') || lower.includes('isd') || lower.includes('resa')) {
-                return 'fas fa-school'; 
+                return 'fas fa-school'; // Schoolhouse
             }
             if (lower.includes('conference') || lower.includes('summit') || lower.includes('symposium') || lower.includes('convention') || lower.includes('macul')) {
-                return 'fas fa-clipboard-list'; 
+                return 'fas fa-clipboard-list'; // Agenda/Paper
             }
-            return 'fas fa-building'; 
+            return 'fas fa-building'; // Business/Association default
         }
 
-        // Determine icon based on the resource type
-        function getResourceIcon(type) {
-            if (!type) return 'fas fa-tag'; // Default icon
-            const lowerType = type.toLowerCase();
-            
-            if (lowerType.includes('slide') || lowerType.includes('canva')) return 'fas fa-desktop';
-            if (lowerType.includes('gemini') || lowerType.includes('notebook')) return 'fas fa-microchip';
-            if (lowerType.includes('form') || lowerType.includes('survey')) return 'fas fa-pen-nib';
-            if (lowerType.includes('doc') || lowerType.includes('pdf')) return 'far fa-file-lines';
-            if (lowerType.includes('web') || lowerType.includes('site')) return 'fas fa-globe';
-            if (lowerType.includes('tool') || lowerType.includes('agent') || lowerType.includes('resource')) return 'fas fa-toolbox';
-            
-            return 'fas fa-tag'; // Fallback for anything else
-        }
-
-        function renderNestedAccordion(data, logos = {}) {
+        function renderNestedAccordion(data) {
             loadingIndicator.classList.add('hidden');
             accordionContainer.innerHTML = '';
             
             const orgs = Object.keys(data);
             if (orgs.length === 0) return;
 
-            // Standard Brand Colors: Dark Teal, Light Teal, A11y Green
+            // Updated Brand colors for Level 1 alternating: A11y Green, Dark Teal, A11y Orange
             const orgThemes = [
+                { bg: 'bg-mv-a11ygreen', hover: 'hover:brightness-90', border: 'border-mv-a11ygreen' },
                 { bg: 'bg-mv-darkteal', hover: 'hover:brightness-90', border: 'border-mv-darkteal' },
-                { bg: 'bg-mv-lightteal', hover: 'hover:brightness-90', border: 'border-mv-lightteal' },
-                { bg: 'bg-mv-a11ygreen', hover: 'hover:brightness-90', border: 'border-mv-a11ygreen' }
+                { bg: 'bg-mv-a11yorange', hover: 'hover:brightness-90', border: 'border-mv-a11yorange' }
             ];
 
             let htmlString = '';
-            let themeIndex = 0; // Maintain an index solely for cycling regular themes
 
             // LEVEL 1: Organizations
             orgs.forEach((org, orgIndex) => {
                 const orgId = `org-${slugify(org)}-${orgIndex}`;
-                
-                // CONDITIONAL OVERRIDE: Check if the organization is Michigan Virtual
-                let theme;
-                if (org.toLowerCase().includes('michigan virtual')) {
-                    theme = { bg: 'bg-mv-a11yorange', hover: 'hover:brightness-90', border: 'border-mv-a11yorange' };
-                } else {
-                    theme = orgThemes[themeIndex % orgThemes.length];
-                    themeIndex++; // Only increment the normal color cycle for non-MV organizations
-                }
-                
+                const theme = orgThemes[orgIndex % orgThemes.length];
                 const dates = Object.keys(data[org]);
                 const orgIcon = getOrgIcon(org);
-                const orgLogoUrl = logos[org];
                 
-                // NEW: Dynamic Icon or Logo HTML with a fallback mechanism (Removed brightness-0 invert filters)
-                const orgIconHTML = orgLogoUrl 
-                    ? `<img src="${orgLogoUrl}" alt="${org} logo" class="h-8 w-8 object-contain drop-shadow-sm" onerror="this.outerHTML='<i class=\\'${orgIcon} text-white/80\\' aria-hidden=\\'true\\'></i>'">`
-                    : `<i class="${orgIcon} text-white/80" aria-hidden="true"></i>`;
-                
-                // Keep all Orgs closed by default
-                const isOrgOpen = false;
+                // Keep first Org open by default
+                const isOrgOpen = orgIndex === 0;
                 const ariaOrgExpanded = isOrgOpen ? 'true' : 'false';
                 const wrapperOrgClass = isOrgOpen ? 'open' : '';
 
                 htmlString += `
                     <div class="rounded-xl overflow-hidden shadow-sm border ${theme.border} bg-white">
+                        <!-- Level 1 Header -->
                         <h3>
                             <button class="accordion-btn w-full flex justify-between items-center ${theme.bg} ${theme.hover} text-white px-6 py-5 text-left focus:outline-none focus:ring-4 focus:ring-inset focus:ring-white/50 transition-colors" 
                                     aria-expanded="${ariaOrgExpanded}" 
                                     aria-controls="content-${orgId}">
                                 <span class="font-extrabold text-xl md:text-2xl flex items-center gap-3">
-                                    <span class="inline-flex justify-center items-center w-8 shrink-0">
-                                        ${orgIconHTML}
-                                    </span> 
-                                    ${org}
+                                    <i class="${orgIcon} text-white/80" aria-hidden="true"></i> ${org}
                                 </span>
                                 <span class="flex items-center justify-center w-8 h-8 rounded-full bg-white/10 shrink-0">
                                     <i class="fas fa-chevron-down accordion-icon" aria-hidden="true"></i>
@@ -565,10 +516,9 @@
                             </button>
                         </h3>
                         
+                        <!-- Level 1 Content Wrapper (Grid Animation) -->
                         <div id="content-${orgId}" class="accordion-wrapper ${wrapperOrgClass} bg-gray-50/50">
-                            <div class="accordion-inner">
-                                <!-- Padding moved inside for smooth grid animation -->
-                                <div class="p-4 md:p-6 flex flex-col gap-4">
+                            <div class="accordion-inner p-4 md:p-6 flex flex-col gap-4">
                 `;
 
                 // LEVEL 2: Dates within Organization
@@ -576,15 +526,18 @@
                     const dateId = `date-${slugify(date)}-${dateIndex}`;
                     const sessions = data[org][date];
                     
+                    // Count total resources across all sessions for the badge
                     let totalResources = 0;
                     Object.values(sessions).forEach(resArr => totalResources += resArr.length);
                     
+                    // Keep dates collapsed by default so the list remains concise
                     const isDateOpen = false;
                     const ariaDateExpanded = isDateOpen ? 'true' : 'false';
                     const wrapperDateClass = isDateOpen ? 'open' : '';
 
                     htmlString += `
                         <div class="rounded-lg overflow-hidden border border-gray-200 bg-white shadow-sm ring-1 ring-black/5">
+                            <!-- Level 2 Header -->
                             <h4>
                                 <button class="accordion-btn w-full flex justify-between items-center bg-white hover:bg-gray-50 text-mv-blackteal px-5 py-4 text-left border-l-4 border-l-mv-darkteal focus:outline-none focus:ring-2 focus:ring-inset focus:ring-mv-a11yorange transition-colors" 
                                         aria-expanded="${ariaDateExpanded}" 
@@ -594,6 +547,7 @@
                                             <i class="far fa-calendar-alt" aria-hidden="true"></i>
                                         </div>
                                         ${date}
+                                        <span class="ml-2 text-xs font-semibold bg-gray-100 text-gray-500 px-2 py-1 rounded-full">${totalResources} item${totalResources !== 1 ? 's' : ''}</span>
                                     </span>
                                     <span class="text-mv-lightgray">
                                         <i class="fas fa-chevron-down accordion-icon" aria-hidden="true"></i>
@@ -601,66 +555,46 @@
                                 </button>
                             </h4>
                             
+                            <!-- Level 2 Content Wrapper (Grid Animation) -->
                             <div id="content-${dateId}" class="accordion-wrapper ${wrapperDateClass}">
-                                <div class="accordion-inner bg-mv-altbg/30">
-                                    <div class="p-4 md:p-5 flex flex-col gap-4">
+                                <div class="accordion-inner bg-mv-altbg/30 p-4 md:p-5 flex flex-col gap-6">
                     `;
 
-                    // LEVEL 3: Sessions and Resources (Now Nested as Accordions)
+                    // LEVEL 3 & 4: Sessions and Resources
                     const sessionNames = Object.keys(sessions);
                     if (sessionNames.length > 0 && totalResources > 0) {
-                        sessionNames.forEach((sessionName, sessionIndex) => {
+                        sessionNames.forEach(sessionName => {
                             const resources = sessions[sessionName];
                             if (resources.length === 0) return;
-                            
-                            const sessionId = `session-${slugify(sessionName)}-${dateId}-${sessionIndex}`;
-                            const sessionCount = resources.length;
 
                             htmlString += `
-                                <div class="session-block rounded-lg overflow-hidden border border-gray-200 bg-white shadow-sm">
-                                    <h5>
-                                        <button class="accordion-btn w-full flex justify-between items-center bg-gray-50 hover:bg-gray-100 text-mv-deepteal px-4 py-3 text-left border-l-4 border-l-mv-a11yorange focus:outline-none focus:ring-2 focus:ring-inset focus:ring-mv-a11yorange transition-colors" 
-                                                aria-expanded="false" 
-                                                aria-controls="content-${sessionId}">
-                                            <span class="font-bold text-md flex items-center gap-2">
-                                                <i class="fas fa-chalkboard text-mv-a11yorange opacity-80" aria-hidden="true"></i> ${sessionName}
-                                                <span class="ml-2 text-[10px] font-bold bg-white text-mv-darkgray px-2 py-0.5 rounded-full border border-gray-200 shadow-sm">${sessionCount} item${sessionCount !== 1 ? 's' : ''}</span>
-                                            </span>
-                                            <span class="text-mv-lightgray">
-                                                <i class="fas fa-chevron-down accordion-icon" aria-hidden="true"></i>
-                                            </span>
-                                        </button>
+                                <div class="session-block">
+                                    <h5 class="text-md font-extrabold text-mv-darkteal mb-3 flex items-center gap-2 border-b border-gray-200 pb-2">
+                                        <i class="fas fa-chalkboard text-mv-a11yorange opacity-80" aria-hidden="true"></i> ${sessionName}
                                     </h5>
-                                    
-                                    <div id="content-${sessionId}" class="accordion-wrapper">
-                                        <div class="accordion-inner">
-                                            <!-- GRID IMPLEMENTATION HERE: Two columns on medium screens and larger -->
-                                            <div class="p-3 md:p-4 grid grid-cols-1 md:grid-cols-2 gap-4 bg-white">
+                                    <div class="grid grid-cols-1 gap-3">
                             `;
 
                             resources.forEach(item => {
-                                // Automatically determine the correct icon based on the text
-                                const resIcon = getResourceIcon(item.resourceType);
-                                
+                                // Add resource type badge if it exists
                                 const resourceTypeBadge = item.resourceType 
-                                    ? `<div class="mb-1.5">
-                                         <span class="inline-flex items-center gap-1.5 px-2.5 py-1 bg-mv-altbg text-mv-darkteal text-[10px] font-bold rounded-md uppercase tracking-wider border border-mv-brightteal/50 shadow-sm">
-                                            <i class="${resIcon} opacity-70"></i> ${item.resourceType}
+                                    ? `<div class="mb-1">
+                                         <span class="inline-flex items-center gap-1.5 px-2 py-0.5 bg-mv-altbg text-mv-darkteal text-[10px] font-bold rounded-md uppercase tracking-wider border border-mv-brightteal/50 shadow-sm">
+                                            <i class="fas fa-tag opacity-70"></i> ${item.resourceType}
                                          </span>
                                        </div>` 
                                     : '';
 
-                                // ADDED h-full to resource-card so grid items stretch equally
                                 htmlString += `
-                                    <div class="resource-card h-full bg-white rounded-lg p-4 border border-gray-200 shadow-sm flex flex-col xl:flex-row gap-4 justify-between xl:items-center group hover:border-mv-lightteal transition-all">
+                                    <div class="resource-card bg-white rounded-lg p-3 border border-gray-200 shadow-sm flex flex-col md:flex-row gap-3 justify-between md:items-center group hover:border-mv-lightteal transition-all">
                                         <div class="flex-grow flex flex-col justify-center">
                                             ${resourceTypeBadge}
-                                            <p class="text-mv-darkgray text-sm leading-relaxed font-medium ${item.resourceType ? 'mt-0.5' : ''}">${item.resourceText || 'Untitled Resource'}</p>
+                                            <p class="text-mv-darkgray text-sm leading-tight font-medium ${item.resourceType ? 'mt-0.5' : ''}">${item.resourceText || 'Untitled Resource'}</p>
                                         </div>
-                                        <div class="shrink-0 mt-2 xl:mt-0 flex items-center h-full">
+                                        <div class="shrink-0 mt-1 md:mt-0 flex items-center h-full">
                                             ${item.linkUrl ? `
                                             <a href="${item.linkUrl}" target="_blank" rel="noopener noreferrer" 
-                                               class="inline-flex items-center justify-center gap-2 bg-mv-darkteal hover:bg-mv-deepteal text-white w-full xl:w-auto px-4 py-2 rounded-lg font-bold text-sm transition-all focus:ring-4 focus:ring-mv-a11yorange/50 shadow shadow-mv-darkteal/20"
+                                               class="inline-flex items-center justify-center gap-2 bg-mv-darkteal hover:bg-mv-deepteal text-white w-full md:w-auto px-3.5 py-1.5 rounded-lg font-bold text-sm transition-all focus:ring-4 focus:ring-mv-a11yorange/50 shadow shadow-mv-darkteal/20"
                                                aria-label="Open resource link">
                                                 <i class="fas fa-external-link-alt" aria-hidden="true"></i> View
                                             </a>
@@ -671,8 +605,6 @@
                             });
 
                             htmlString += `
-                                            </div>
-                                        </div>
                                     </div>
                                 </div>
                             `;
@@ -687,7 +619,6 @@
                     }
 
                     htmlString += `
-                                    </div>
                                 </div>
                             </div>
                         </div>
@@ -695,7 +626,6 @@
                 });
 
                 htmlString += `
-                                </div>
                             </div>
                         </div>
                     </div>
@@ -726,34 +656,32 @@
             });
         }
 
+        // Mock data updated with resourceType
         function renderMockData() {
             const mockData = {
                 "Michigan Association of School Boards": {
                     "October 15, 2026": {
                         "Morning Keynote": [
-                            { resourceText: "Slide deck covering policy drafting and governance.", linkUrl: "https://michiganvirtual.org", resourceType: "Canva/Google Slides" }
+                            { resourceText: "Slide deck covering policy drafting and governance.", linkUrl: "https://michiganvirtual.org", resourceType: "Presentation" }
                         ],
                         "Workshop Breakout": [
-                            { resourceText: "Drafting Template - Word document for starting local policy.", linkUrl: "https://michiganvirtual.org", resourceType: "Document (Doc/PDF)" }
+                            { resourceText: "Drafting Template - Word document for starting local policy.", linkUrl: "https://michiganvirtual.org", resourceType: "Document" }
                         ]
                     }
                 },
-                "Michigan Virtual": {
+                "Lansing School District": {
                     "November 2, 2026": {
                         "Teacher In-Service": [
-                            { resourceText: "Google Drive folder containing all interactive activities.", linkUrl: "https://michiganvirtual.org", resourceType: "Website" },
-                            { resourceText: "Please complete this survey before leaving.", linkUrl: "", resourceType: "Google Form" }
+                            { resourceText: "Google Drive folder containing all interactive activities.", linkUrl: "https://michiganvirtual.org", resourceType: "Folder" },
+                            { resourceText: "Please complete this survey before leaving.", linkUrl: "", resourceType: "Survey" }
                         ]
                     }
-                }
+                },
+                 "Statewide Tech Summit": {
+                    "January 5, 2027": {}
+                 }
             };
-            
-            // Mock logo data so you can see it in action
-            const mockLogos = {
-                "Michigan Virtual": "https://michiganvirtual.org/legacy-wordpress/uploads/2019/09/michigan-virtual-logo-horizontal-stacked-transparent.png"
-            };
-            
-            renderNestedAccordion(mockData, mockLogos);
+            renderNestedAccordion(mockData);
         }
 
         function openModal() {
@@ -801,6 +729,7 @@
                 input.value = '';
                 input.focus();
                 
+                // Shake effect
                 const modalDiv = authModal.querySelector('div');
                 modalDiv.classList.add('animate-pulse');
                 setTimeout(() => modalDiv.classList.remove('animate-pulse'), 300);
