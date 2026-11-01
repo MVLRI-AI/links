@@ -329,7 +329,8 @@
         // CONFIGURATION
         // ==========================================
         const GOOGLE_SHEET_ID = '183JZx4KZCrHL8iAxUFYkYCbmJmtRqDE_czl3MwMALSE';
-        const ADMIN_SHEET_URL = `https://docs.google.com/spreadsheets/d/${GOOGLE_SHEET_ID}/edit`; const CSV_URL = `https://docs.google.com/spreadsheets/d/${GOOGLE_SHEET_ID}/gviz/tq?tqx=out:csv`;
+        const ADMIN_SHEET_URL = `https://docs.google.com/spreadsheets/d/${GOOGLE_SHEET_ID}/edit`;
+        const CSV_URL = `https://docs.google.com/spreadsheets/d/${GOOGLE_SHEET_ID}/gviz/tq?tqx=out:csv`;
         const ADMIN_PASSWORD = 'Maksimchuk';
 
         // DOM Elements
@@ -549,7 +550,7 @@
                 htmlString += `
                     <div class="rounded-xl overflow-hidden shadow-sm border ${theme.border} bg-white">
                         <h3>
-                            <button class="accordion-btn w-full flex justify-between items-center ${theme.bg}${theme.hover} text-white px-6 py-5 text-left focus:outline-none focus:ring-4 focus:ring-inset focus:ring-white/50 transition-colors" 
+                            <button class="accordion-btn w-full flex justify-between items-center ${theme.bg} ${theme.hover} text-white px-6 py-5 text-left focus:outline-none focus:ring-4 focus:ring-inset focus:ring-white/50 transition-colors" 
                                     aria-expanded="${ariaOrgExpanded}" 
                                     aria-controls="content-${orgId}">
                                 <span class="font-extrabold text-xl md:text-2xl flex items-center gap-3">
@@ -653,11 +654,159 @@
                                 const cardDisabledClass = !item.linkUrl ? 'opacity-75 cursor-not-allowed' : '';
 
                                 htmlString += `
-                                    <a href="${item.linkUrl \vert{}\vert{} '#'}" ${linkAttrs} class="resource-card bg-gray-50/80 rounded-lg p-4 border border-gray-200 shadow-sm flex items-center gap-4 text-left hover:border-mv-lightteal hover:bg-white hover:shadow-md transition-all h-full ${cardDisabledClass}">
+                                    <a href="${item.linkUrl || '#'}" ${linkAttrs} class="resource-card bg-gray-50/80 rounded-lg p-4 border border-gray-200 shadow-sm flex items-center gap-4 text-left hover:border-mv-lightteal hover:bg-white hover:shadow-md transition-all h-full ${cardDisabledClass}">
                                         
                                         <div class="flex items-center justify-center w-12 h-12 rounded-full bg-white text-mv-darkteal border border-gray-100 shadow-sm shrink-0">
                                             <i class="${resIcon} text-xl opacity-90"></i>
                                         </div>
                                         
                                         <div class="flex flex-col flex-grow">
-                                            <h6 class="text-mv
+                                            <h6 class="text-mv-blackteal text-lg font-bold leading-tight">${item.resourceText || 'Untitled Resource'}</h6>
+                                            ${resourceTypeBadge}
+                                            ${pendingBadge}
+                                        </div>
+                                        
+                                    </a>
+                                `;
+                            });
+
+                            htmlString += `
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            `;
+                        });
+                    } else {
+                        htmlString += `
+                            <div class="py-6 text-center text-mv-lightgray bg-white rounded-lg border border-dashed border-gray-300">
+                                <i class="fas fa-folder-open text-3xl mb-2 opacity-40"></i>
+                                <p class="text-sm font-medium">No resources have been added for this date yet.</p>
+                            </div>
+                        `;
+                    }
+
+                    htmlString += `
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    `;
+                });
+
+                htmlString += `
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                `;
+            });
+
+            accordionContainer.innerHTML = htmlString;
+            attachAccordionListeners();
+        }
+
+        function attachAccordionListeners() {
+            const buttons = document.querySelectorAll('.accordion-btn');
+            
+            buttons.forEach(button => {
+                button.addEventListener('click', () => {
+                    const isExpanded = button.getAttribute('aria-expanded') === 'true';
+                    const contentId = button.getAttribute('aria-controls');
+                    const contentWrapper = document.getElementById(contentId);
+                    
+                    if (isExpanded) {
+                        button.setAttribute('aria-expanded', 'false');
+                        contentWrapper.classList.remove('open');
+                    } else {
+                        button.setAttribute('aria-expanded', 'true');
+                        contentWrapper.classList.add('open');
+                    }
+                });
+            });
+        }
+
+        function renderMockData() {
+            const mockData = {
+                "Michigan Association of School Boards": {
+                    "October 15, 2026": {
+                        "Morning Keynote": [
+                            { resourceText: "Slide deck covering policy drafting and governance.", linkUrl: "https://michiganvirtual.org", resourceType: "Canva/Google Slides" }
+                        ],
+                        "Workshop Breakout": [
+                            { resourceText: "Drafting Template - Word document for starting local policy.", linkUrl: "https://michiganvirtual.org", resourceType: "Document (Doc/PDF)" }
+                        ]
+                    }
+                },
+                "Michigan Virtual": {
+                    "November 2, 2026": {
+                        "Teacher In-Service": [
+                            { resourceText: "Google Drive folder containing all interactive activities.", linkUrl: "https://michiganvirtual.org", resourceType: "Website" },
+                            { resourceText: "Please complete this survey before leaving.", linkUrl: "", resourceType: "Google Form" }
+                        ]
+                    }
+                }
+            };
+            
+            const mockLogos = {
+                "Michigan Virtual": "https://michiganvirtual.org/legacy-wordpress/uploads/2019/09/michigan-virtual-logo-horizontal-stacked-transparent.png"
+            };
+            
+            renderNestedAccordion(mockData, mockLogos);
+        }
+
+        function openModal() {
+            authModal.classList.remove('modal-hidden');
+            document.getElementById('password-input').value = '';
+            document.getElementById('password-error').classList.add('hidden');
+            setTimeout(() => document.getElementById('password-input').focus(), 50);
+            document.body.style.overflow = 'hidden';
+        }
+
+        function closeModal() {
+            authModal.classList.add('modal-hidden');
+            document.body.style.overflow = '';
+        }
+
+        document.getElementById('btn-admin-access').addEventListener('click', openModal);
+        document.getElementById('btn-close-modal').addEventListener('click', closeModal);
+        
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'Escape' && !authModal.classList.contains('modal-hidden')) closeModal();
+        });
+
+        authModal.addEventListener('mousedown', (e) => {
+            if (e.target === authModal) closeModal();
+        });
+
+        authForm.addEventListener('submit', (e) => {
+            e.preventDefault();
+            const input = document.getElementById('password-input');
+            const error = document.getElementById('password-error');
+            
+            if (input.value === ADMIN_PASSWORD) {
+                error.classList.add('hidden');
+                const btn = authForm.querySelector('button');
+                const ogHTML = btn.innerHTML;
+                btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Verifying...';
+                
+                setTimeout(() => {
+                    window.open(ADMIN_SHEET_URL, '_blank', 'noopener,noreferrer');
+                    closeModal();
+                    btn.innerHTML = ogHTML;
+                }, 500);
+            } else {
+                error.classList.remove('hidden');
+                input.value = '';
+                input.focus();
+                
+                const modalDiv = authModal.querySelector('div');
+                modalDiv.classList.add('animate-pulse');
+                setTimeout(() => modalDiv.classList.remove('animate-pulse'), 300);
+            }
+        });
+
+        document.addEventListener('DOMContentLoaded', fetchEngagements);
+    </script>
+</body>
+</html>
