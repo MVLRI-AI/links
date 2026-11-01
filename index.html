@@ -305,4 +305,508 @@
                             <i class="fas fa-key text-mv-lightteal" aria-hidden="true"></i>
                         </div>
                         <input type="password" id="password-input" 
-                               class="w-full pl-12 pr-4 py-3.5 bg-gray-50 border-2 border-gray-200 rounded-xl focus:
+                               class="w-full pl-12 pr-4 py-3.5 bg-gray-50 border-2 border-gray-200 rounded-xl focus:bg-white focus:ring-0 focus:border-mv-a11yorange outline-none transition-all text-mv-blackteal font-bold text-lg" 
+                               placeholder="Enter password" required>
+                    </div>
+                    <p id="password-error" class="text-mv-a11yorange text-sm mt-2 hidden font-bold flex items-center gap-1" role="alert">
+                        <i class="fas fa-circle-exclamation"></i> Incorrect password.
+                    </p>
+                </div>
+                
+                <button type="submit" class="w-full bg-mv-a11yorange hover:bg-[#8c3d20] text-white font-bold py-3.5 px-4 rounded-xl transition-all focus:outline-none focus:ring-4 focus:ring-mv-a11yorange/50 shadow-lg hover:shadow-xl hover:-translate-y-0.5 flex justify-center items-center gap-2 text-lg">
+                    Open Spreadsheet <i class="fas fa-external-link-alt text-sm opacity-80" aria-hidden="true"></i>
+                </button>
+                <div class="bg-blue-50 text-blue-800 p-3 rounded-lg flex gap-2 items-start text-xs mt-2">
+                    <i class="fas fa-info-circle mt-0.5"></i>
+                    <p>Changes made in the spreadsheet will appear on this page upon refresh.</p>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <script>
+        // ==========================================
+        // CONFIGURATION
+        // ==========================================
+        const GOOGLE_SHEET_ID = '183JZx4KZCrHL8iAxUFYkYCbmJmtRqDE_czl3MwMALSE';
+        const ADMIN_SHEET_URL = `https://docs.google.com/spreadsheets/d/${GOOGLE_SHEET_ID}/edit`;
+        const CSV_URL = `https://docs.google.com/spreadsheets/d/${GOOGLE_SHEET_ID}/gviz/tq?tqx=out:csv`;
+        const ADMIN_PASSWORD = 'Maksimchuk';
+
+        // DOM Elements
+        const accordionContainer = document.getElementById('accordion-container');
+        const loadingIndicator = document.getElementById('loading-indicator');
+        const errorContainer = document.getElementById('error-container');
+        const authModal = document.getElementById('auth-modal');
+        const authForm = document.getElementById('auth-form');
+
+        document.getElementById('year').textContent = new Date().getFullYear();
+
+        // Parse CSV correctly handling quotes
+        function parseCSV(str) {
+            const arr = [];
+            let quote = false;
+            for (let row = 0, col = 0, c = 0; c < str.length; c++) {
+                let cc = str[c], nc = str[c+1];
+                arr[row] = arr[row] || [];
+                arr[row][col] = arr[row][col] || '';
+                if (cc == '"' && quote && nc == '"') { arr[row][col] += cc; ++c; continue; }
+                if (cc == '"') { quote = !quote; continue; }
+                if (cc == ',' && !quote) { ++col; continue; }
+                if (cc == '\r' && nc == '\n' && !quote) { ++row; col = 0; ++c; continue; }
+                if (cc == '\n' && !quote) { ++row; col = 0; continue; }
+                if (cc == '\r' && !quote) { ++row; col = 0; continue; }
+                arr[row][col] += cc;
+            }
+            return arr;
+        }
+
+        // Process data into: Organization -> Date -> Session -> Array of Resources
+        function processData(rows) {
+            const headerRow = rows.shift(); 
+            
+            const structuredData = {};
+            const orgMaxDates = {}; 
+            const orgLogos = {}; // NEW: Store logos mapped to org names
+            
+            rows.forEach(row => {
+                if (row.length < 2) return; 
+                
+                const org = (row[0] || '').trim();
+                const dateStr = (row[1] || '').trim();
+                const session = (row[2] || '').trim() || 'General Session';
+                const resourceText = (row[3] || '').trim();
+                const linkUrl = (row[4] || '').trim();
+                const resourceType = (row[5] || '').trim(); 
+                const logoUrl = (row[6] || '').trim(); // NEW: Column G (7th column)
+                
+                if (!org || !dateStr) return; 
+                
+                // NEW: Capture logo if present
+                if (logoUrl && !orgLogos[org]) {
+                    orgLogos[org] = logoUrl;
+                }
+                
+                let dateObj = new Date(dateStr);
+                if (isNaN(dateObj.getTime())) {
+                    dateObj = new Date(0); 
+                }
+
+                if (!structuredData[org]) {
+                    structuredData[org] = {};
+                    orgMaxDates[org] = dateObj;
+                } else if (dateObj > orgMaxDates[org]) {
+                    orgMaxDates[org] = dateObj;
+                }
+                
+                if (!structuredData[org][dateStr]) {
+                    structuredData[org][dateStr] = {
+                        dateObj: dateObj,
+                        sessions: {}
+                    };
+                }
+                
+                if (!structuredData[org][dateStr].sessions[session]) {
+                    structuredData[org][dateStr].sessions[session] = [];
+                }
+                
+                if (resourceText || linkUrl) {
+                    structuredData[org][dateStr].sessions[session].push({ 
+                        resourceText, 
+                        linkUrl, 
+                        resourceType 
+                    });
+                }
+            });
+
+            // Sort logic: "Michigan Virtual" always at the top, then by most recent date descending
+            const sortedOrgs = Object.keys(structuredData).sort((a, b) => {
+                const aIsMV = a.toLowerCase().includes('michigan virtual');
+                const bIsMV = b.toLowerCase().includes('michigan virtual');
+                
+                if (aIsMV && !bIsMV) return -1;
+                if (!aIsMV && bIsMV) return 1;
+                
+                // If neither or both are Michigan Virtual, sort by date
+                return orgMaxDates[b] - orgMaxDates[a];
+            });
+
+            const finalData = {};
+            sortedOrgs.forEach(org => {
+                finalData[org] = {};
+                const sortedDates = Object.keys(structuredData[org]).sort((a, b) => {
+                    return structuredData[org][b].dateObj - structuredData[org][a].dateObj;
+                });
+                
+                sortedDates.forEach(date => {
+                    finalData[org][date] = structuredData[org][date].sessions;
+                });
+            });
+
+            // Returning both the processed data and the captured logos
+            return { data: finalData, logos: orgLogos };
+        }
+
+        async function fetchEngagements() {
+            try {
+                const response = await fetch(CSV_URL);
+                if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+                const csvText = await response.text();
+                
+                if (csvText.trim().startsWith('<!DOCTYPE html>')) {
+                    throw new Error('Google Sheet is not public.');
+                }
+
+                const rows = parseCSV(csvText);
+                if (rows.length <= 1) throw new Error('No data found in sheet.');
+
+                const processedData = processData(rows);
+                if (Object.keys(processedData.data).length === 0) throw new Error('Empty parsed object.');
+
+                renderNestedAccordion(processedData.data, processedData.logos);
+                
+            } catch (error) {
+                console.error("Error:", error);
+                loadingIndicator.classList.add('hidden');
+                errorContainer.classList.remove('hidden');
+                renderMockData(); 
+            }
+        }
+
+        function slugify(text) {
+            return text.toString().toLowerCase().replace(/\s+/g, '-').replace(/[^\w\-]+/g, '');
+        }
+
+        function getOrgIcon(orgName) {
+            const lower = orgName.toLowerCase();
+            if (lower.includes('school') || lower.includes('district') || lower.includes('academy') || lower.includes('isd') || lower.includes('resa')) {
+                return 'fas fa-school'; 
+            }
+            if (lower.includes('conference') || lower.includes('summit') || lower.includes('symposium') || lower.includes('convention') || lower.includes('macul')) {
+                return 'fas fa-clipboard-list'; 
+            }
+            return 'fas fa-building'; 
+        }
+
+        // Determine icon based on the resource type
+        function getResourceIcon(type) {
+            if (!type) return 'fas fa-tag'; // Default icon
+            const lowerType = type.toLowerCase();
+            
+            if (lowerType.includes('slide') || lowerType.includes('canva')) return 'fas fa-desktop';
+            if (lowerType.includes('gemini') || lowerType.includes('notebook')) return 'fas fa-microchip';
+            if (lowerType.includes('form') || lowerType.includes('survey')) return 'fas fa-pen-nib';
+            if (lowerType.includes('doc') || lowerType.includes('pdf')) return 'far fa-file-lines';
+            if (lowerType.includes('web') || lowerType.includes('site')) return 'fas fa-globe';
+            if (lowerType.includes('tool') || lowerType.includes('agent') || lowerType.includes('resource')) return 'fas fa-toolbox';
+            
+            return 'fas fa-tag'; // Fallback for anything else
+        }
+
+        function renderNestedAccordion(data, logos = {}) {
+            loadingIndicator.classList.add('hidden');
+            accordionContainer.innerHTML = '';
+            
+            const orgs = Object.keys(data);
+            if (orgs.length === 0) return;
+
+            // Standard Brand Colors: Dark Teal, Light Teal, A11y Green
+            const orgThemes = [
+                { bg: 'bg-mv-darkteal', hover: 'hover:brightness-90', border: 'border-mv-darkteal' },
+                { bg: 'bg-mv-lightteal', hover: 'hover:brightness-90', border: 'border-mv-lightteal' },
+                { bg: 'bg-mv-a11ygreen', hover: 'hover:brightness-90', border: 'border-mv-a11ygreen' }
+            ];
+
+            let htmlString = '';
+            let themeIndex = 0; // Maintain an index solely for cycling regular themes
+
+            // LEVEL 1: Organizations
+            orgs.forEach((org, orgIndex) => {
+                const orgId = `org-${slugify(org)}-${orgIndex}`;
+                
+                // CONDITIONAL OVERRIDE: Check if the organization is Michigan Virtual
+                let theme;
+                if (org.toLowerCase().includes('michigan virtual')) {
+                    theme = { bg: 'bg-mv-a11yorange', hover: 'hover:brightness-90', border: 'border-mv-a11yorange' };
+                } else {
+                    theme = orgThemes[themeIndex % orgThemes.length];
+                    themeIndex++; // Only increment the normal color cycle for non-MV organizations
+                }
+                
+                const dates = Object.keys(data[org]);
+                const orgIcon = getOrgIcon(org);
+                const orgLogoUrl = logos[org];
+                
+                // NEW: Dynamic Icon or Logo HTML with a fallback mechanism
+                const orgIconHTML = orgLogoUrl 
+                    ? `<img src="${orgLogoUrl}" alt="${org} logo" class="h-8 w-8 object-contain drop-shadow-sm" onerror="this.outerHTML='<i class=\\'${orgIcon} text-white/80\\' aria-hidden=\\'true\\'></i>'">`
+                    : `<i class="${orgIcon} text-white/80" aria-hidden="true"></i>`;
+                
+                // Keep all Orgs closed by default
+                const isOrgOpen = false;
+                const ariaOrgExpanded = isOrgOpen ? 'true' : 'false';
+                const wrapperOrgClass = isOrgOpen ? 'open' : '';
+
+                htmlString += `
+                    <div class="rounded-xl overflow-hidden shadow-sm border ${theme.border} bg-white">
+                        <h3>
+                            <button class="accordion-btn w-full flex justify-between items-center ${theme.bg} ${theme.hover} text-white px-6 py-5 text-left focus:outline-none focus:ring-4 focus:ring-inset focus:ring-white/50 transition-colors" 
+                                    aria-expanded="${ariaOrgExpanded}" 
+                                    aria-controls="content-${orgId}">
+                                <span class="font-extrabold text-xl md:text-2xl flex items-center gap-3">
+                                    <span class="inline-flex justify-center items-center w-8 shrink-0">
+                                        ${orgIconHTML}
+                                    </span> 
+                                    ${org}
+                                </span>
+                                <span class="flex items-center justify-center w-8 h-8 rounded-full bg-white/10 shrink-0">
+                                    <i class="fas fa-chevron-down accordion-icon" aria-hidden="true"></i>
+                                </span>
+                            </button>
+                        </h3>
+                        
+                        <div id="content-${orgId}" class="accordion-wrapper ${wrapperOrgClass} bg-gray-50/50">
+                            <div class="accordion-inner">
+                                <div class="p-4 md:p-6 flex flex-col gap-4">
+                `;
+
+                // LEVEL 2: Dates within Organization
+                dates.forEach((date, dateIndex) => {
+                    const dateId = `date-${slugify(date)}-${dateIndex}`;
+                    const sessions = data[org][date];
+                    
+                    let totalResources = 0;
+                    Object.values(sessions).forEach(resArr => totalResources += resArr.length);
+                    
+                    const isDateOpen = false;
+                    const ariaDateExpanded = isDateOpen ? 'true' : 'false';
+                    const wrapperDateClass = isDateOpen ? 'open' : '';
+
+                    htmlString += `
+                        <div class="rounded-lg overflow-hidden border border-gray-200 bg-white shadow-sm ring-1 ring-black/5">
+                            <h4>
+                                <button class="accordion-btn w-full flex justify-between items-center bg-white hover:bg-gray-50 text-mv-blackteal px-5 py-4 text-left border-l-4 border-l-mv-darkteal focus:outline-none focus:ring-2 focus:ring-inset focus:ring-mv-a11yorange transition-colors" 
+                                        aria-expanded="${ariaDateExpanded}" 
+                                        aria-controls="content-${dateId}">
+                                    <span class="font-bold text-lg flex items-center gap-3">
+                                        <div class="bg-mv-altbg text-mv-darkteal p-1.5 rounded">
+                                            <i class="far fa-calendar-alt" aria-hidden="true"></i>
+                                        </div>
+                                        ${date}
+                                    </span>
+                                    <span class="text-mv-lightgray">
+                                        <i class="fas fa-chevron-down accordion-icon" aria-hidden="true"></i>
+                                    </span>
+                                </button>
+                            </h4>
+                            
+                            <div id="content-${dateId}" class="accordion-wrapper ${wrapperDateClass}">
+                                <div class="accordion-inner bg-mv-altbg/30">
+                                    <div class="p-4 md:p-5 flex flex-col gap-4">
+                    `;
+
+                    // LEVEL 3: Sessions and Resources
+                    const sessionNames = Object.keys(sessions);
+                    if (sessionNames.length > 0 && totalResources > 0) {
+                        sessionNames.forEach((sessionName, sessionIndex) => {
+                            const resources = sessions[sessionName];
+                            if (resources.length === 0) return;
+                            
+                            const sessionId = `session-${slugify(sessionName)}-${dateId}-${sessionIndex}`;
+                            const sessionCount = resources.length;
+
+                            htmlString += `
+                                <div class="session-block rounded-lg overflow-hidden border border-gray-200 bg-white shadow-sm">
+                                    <h5>
+                                        <button class="accordion-btn w-full flex justify-between items-center bg-gray-50 hover:bg-gray-100 text-mv-deepteal px-4 py-3 text-left border-l-4 border-l-mv-a11yorange focus:outline-none focus:ring-2 focus:ring-inset focus:ring-mv-a11yorange transition-colors" 
+                                                aria-expanded="false" 
+                                                aria-controls="content-${sessionId}">
+                                            <span class="font-bold text-md flex items-center gap-2">
+                                                <i class="fas fa-chalkboard text-mv-a11yorange opacity-80" aria-hidden="true"></i> ${sessionName}
+                                                <span class="ml-2 text-[10px] font-bold bg-white text-mv-darkgray px-2 py-0.5 rounded-full border border-gray-200 shadow-sm">${sessionCount} item${sessionCount !== 1 ? 's' : ''}</span>
+                                            </span>
+                                            <span class="text-mv-lightgray">
+                                                <i class="fas fa-chevron-down accordion-icon" aria-hidden="true"></i>
+                                            </span>
+                                        </button>
+                                    </h5>
+                                    
+                                    <div id="content-${sessionId}" class="accordion-wrapper">
+                                        <div class="accordion-inner">
+                                            <div class="p-3 md:p-4 grid grid-cols-1 md:grid-cols-2 gap-4 bg-white">
+                            `;
+
+                            resources.forEach(item => {
+                                const resIcon = getResourceIcon(item.resourceType);
+                                
+                                const resourceTypeBadge = item.resourceType 
+                                    ? '<div class="mt-2 text-center"><span class="text-xs italic text-gray-500 tracking-wider">' + item.resourceType + '</span></div>' 
+                                    : '';
+                                
+                                const pendingBadge = !item.linkUrl 
+                                    ? '<div class="mt-2"><span class="inline-flex items-center gap-1 px-2 py-1 bg-gray-100 text-mv-lightgray text-[10px] font-semibold rounded border border-gray-200"><i class="fas fa-clock"></i> Pending</span></div>' 
+                                    : '';
+                                    
+                                const linkAttrs = item.linkUrl 
+                                    ? 'target="_blank" rel="noopener noreferrer"' 
+                                    : '';
+                                    
+                                const cardDisabledClass = !item.linkUrl ? 'opacity-75 cursor-not-allowed' : '';
+
+                                htmlString += `
+                                    <a href="${item.linkUrl || '#'}" ${linkAttrs} class="resource-card bg-white rounded-lg p-5 border border-gray-200 shadow-sm flex flex-col items-center text-center hover:border-mv-lightteal hover:shadow-md transition-all h-full ${cardDisabledClass}">
+                                        
+                                        <div class="text-mv-darkteal mb-3">
+                                            <i class="${resIcon} text-5xl opacity-90 drop-shadow-sm"></i>
+                                        </div>
+                                        
+                                        <div class="flex-grow flex items-center justify-center w-full mb-1">
+                                            <h6 class="text-mv-blackteal text-xl font-bold leading-tight">${item.resourceText || 'Untitled Resource'}</h6>
+                                        </div>
+                                        
+                                        ${resourceTypeBadge}
+                                        ${pendingBadge}
+                                    </a>
+                                `;
+                            });
+
+                            htmlString += `
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            `;
+                        });
+                    } else {
+                        htmlString += `
+                            <div class="py-6 text-center text-mv-lightgray bg-white rounded-lg border border-dashed border-gray-300">
+                                <i class="fas fa-folder-open text-3xl mb-2 opacity-40"></i>
+                                <p class="text-sm font-medium">No resources have been added for this date yet.</p>
+                            </div>
+                        `;
+                    }
+
+                    htmlString += `
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    `;
+                });
+
+                htmlString += `
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                `;
+            });
+
+            accordionContainer.innerHTML = htmlString;
+            attachAccordionListeners();
+        }
+
+        function attachAccordionListeners() {
+            const buttons = document.querySelectorAll('.accordion-btn');
+            
+            buttons.forEach(button => {
+                button.addEventListener('click', () => {
+                    const isExpanded = button.getAttribute('aria-expanded') === 'true';
+                    const contentId = button.getAttribute('aria-controls');
+                    const contentWrapper = document.getElementById(contentId);
+                    
+                    if (isExpanded) {
+                        button.setAttribute('aria-expanded', 'false');
+                        contentWrapper.classList.remove('open');
+                    } else {
+                        button.setAttribute('aria-expanded', 'true');
+                        contentWrapper.classList.add('open');
+                    }
+                });
+            });
+        }
+
+        function renderMockData() {
+            const mockData = {
+                "Michigan Association of School Boards": {
+                    "October 15, 2026": {
+                        "Morning Keynote": [
+                            { resourceText: "Slide deck covering policy drafting and governance.", linkUrl: "https://michiganvirtual.org", resourceType: "Canva/Google Slides" }
+                        ],
+                        "Workshop Breakout": [
+                            { resourceText: "Drafting Template - Word document for starting local policy.", linkUrl: "https://michiganvirtual.org", resourceType: "Document (Doc/PDF)" }
+                        ]
+                    }
+                },
+                "Michigan Virtual": {
+                    "November 2, 2026": {
+                        "Teacher In-Service": [
+                            { resourceText: "Google Drive folder containing all interactive activities.", linkUrl: "https://michiganvirtual.org", resourceType: "Website" },
+                            { resourceText: "Please complete this survey before leaving.", linkUrl: "", resourceType: "Google Form" }
+                        ]
+                    }
+                }
+            };
+            
+            const mockLogos = {
+                "Michigan Virtual": "https://michiganvirtual.org/legacy-wordpress/uploads/2019/09/michigan-virtual-logo-horizontal-stacked-transparent.png"
+            };
+            
+            renderNestedAccordion(mockData, mockLogos);
+        }
+
+        function openModal() {
+            authModal.classList.remove('modal-hidden');
+            document.getElementById('password-input').value = '';
+            document.getElementById('password-error').classList.add('hidden');
+            setTimeout(() => document.getElementById('password-input').focus(), 50);
+            document.body.style.overflow = 'hidden';
+        }
+
+        function closeModal() {
+            authModal.classList.add('modal-hidden');
+            document.body.style.overflow = '';
+        }
+
+        document.getElementById('btn-admin-access').addEventListener('click', openModal);
+        document.getElementById('btn-close-modal').addEventListener('click', closeModal);
+        
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'Escape' && !authModal.classList.contains('modal-hidden')) closeModal();
+        });
+
+        authModal.addEventListener('mousedown', (e) => {
+            if (e.target === authModal) closeModal();
+        });
+
+        authForm.addEventListener('submit', (e) => {
+            e.preventDefault();
+            const input = document.getElementById('password-input');
+            const error = document.getElementById('password-error');
+            
+            if (input.value === ADMIN_PASSWORD) {
+                error.classList.add('hidden');
+                const btn = authForm.querySelector('button');
+                const ogHTML = btn.innerHTML;
+                btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Verifying...';
+                
+                setTimeout(() => {
+                    window.open(ADMIN_SHEET_URL, '_blank', 'noopener,noreferrer');
+                    closeModal();
+                    btn.innerHTML = ogHTML;
+                }, 500);
+            } else {
+                error.classList.remove('hidden');
+                input.value = '';
+                input.focus();
+                
+                const modalDiv = authModal.querySelector('div');
+                modalDiv.classList.add('animate-pulse');
+                setTimeout(() => modalDiv.classList.remove('animate-pulse'), 300);
+            }
+        });
+
+        document.addEventListener('DOMContentLoaded', fetchEngagements);
+    </script>
+</body>
+</html>
