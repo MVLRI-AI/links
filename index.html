@@ -512,7 +512,6 @@
                 const orgIcon = getOrgIcon(org);
                 const orgLogoUrl = logos[org];
                 
-                // BUFIX: Safely inject fallback HTML using HTML entities to avoid quote conflicts
                 const fallbackHTML = `<i class="${orgIcon} text-4xl md:text-5xl text-white/90" aria-hidden="true"></i>`;
                 const orgIconHTML = orgLogoUrl 
                     ? `<img src="${orgLogoUrl}" alt="${org} logo" class="w-full h-full object-contain drop-shadow-md" onerror="this.onerror=null; this.outerHTML='<i class=&quot;${orgIcon} text-4xl md:text-5xl text-white/90&quot; aria-hidden=&quot;true&quot;></i>';">`
@@ -522,7 +521,6 @@
                 const ariaOrgExpanded = isOrgOpen ? 'true' : 'false';
                 const wrapperOrgClass = isOrgOpen ? 'open' : '';
 
-                // NEW LAYOUT: Banners are shorter (py-2 md:py-3), text is larger (text-2xl md:text-3xl lg:text-4xl), and logos are larger (w-16 h-16 md:w-20 md:h-20)
                 htmlString += `
                     <div class="rounded-xl overflow-hidden shadow-sm border ${theme.border} bg-white">
                         <h3>
@@ -621,20 +619,21 @@
                                        </div>` 
                                     : '';
 
+                                // COMPACT HORIZONTAL CARD LAYOUT
                                 htmlString += `
-                                    <div class="resource-card h-full bg-white rounded-lg p-4 border border-gray-200 shadow-sm flex flex-col xl:flex-row gap-4 justify-between xl:items-center group hover:border-mv-lightteal transition-all">
-                                        <div class="flex-grow flex flex-col justify-center">
+                                    <div class="resource-card h-full bg-white rounded-lg p-3 md:p-4 border border-gray-200 shadow-sm flex flex-col sm:flex-row gap-3 md:gap-4 justify-between sm:items-center group hover:border-mv-lightteal transition-all">
+                                        <div class="flex-grow flex flex-col justify-start">
                                             ${resourceTypeBadge}
                                             <p class="text-mv-darkgray text-sm leading-relaxed font-medium ${item.resourceType ? 'mt-0.5' : ''}">${item.resourceText || 'Untitled Resource'}</p>
                                         </div>
-                                        <div class="shrink-0 mt-2 xl:mt-0 flex items-center h-full">
+                                        <div class="shrink-0 mt-2 sm:mt-0 flex items-center">
                                             ${item.linkUrl ? `
                                             <a href="${item.linkUrl}" target="_blank" rel="noopener noreferrer" 
-                                               class="inline-flex items-center justify-center gap-2 bg-mv-darkteal hover:bg-mv-deepteal text-white w-full xl:w-auto px-4 py-2 rounded-lg font-bold text-sm transition-all focus:ring-4 focus:ring-mv-a11yorange/50 shadow shadow-mv-darkteal/20"
+                                               class="inline-flex items-center justify-center gap-2 bg-mv-darkteal hover:bg-mv-deepteal text-white w-full sm:w-auto px-4 py-2 rounded-lg font-bold text-sm transition-all focus:ring-4 focus:ring-mv-a11yorange/50 shadow shadow-mv-darkteal/20 whitespace-nowrap"
                                                aria-label="Open resource link">
                                                 <i class="fas fa-external-link-alt" aria-hidden="true"></i> View
                                             </a>
-                                            ` : '<span class="inline-flex items-center gap-1 px-3 py-1.5 bg-gray-100 text-mv-lightgray text-xs font-semibold rounded-md border border-gray-200"><i class="fas fa-clock"></i> Pending</span>'}
+                                            ` : '<span class="inline-flex items-center gap-1 px-3 py-1.5 bg-gray-100 text-mv-lightgray text-xs font-semibold rounded-md border border-gray-200 whitespace-nowrap"><i class="fas fa-clock"></i> Pending</span>'}
                                         </div>
                                     </div>
                                 `;
